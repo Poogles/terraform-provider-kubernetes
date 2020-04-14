@@ -413,6 +413,13 @@ The `option` block supports the following:
 
 * `command` - (Optional) Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
 
+### `extended_resources`
+
+#### Arguments
+
+* `name` - (Optional) Fully qualified name of the ExtendedResource you wish to consume with the container. Users can use any domain name prefix other than kubernetes.io which is reserved. Ex. "nvidia.com/gpu" or "amd.com/gpu".
+* `value` - (Optional) Number of the ExtendedResource to request. Extended resources cannot be overcommitted, so request and limit must be equal if both are present.
+
 ### `fc`
 
 #### Arguments
@@ -540,6 +547,7 @@ The `option` block supports the following:
 
 * `cpu` - (Optional) CPU
 * `memory` - (Optional) Memory
+* `extended_resources` - (Optional) ExtendedResources
 
 ### `liveness_probe`
 
@@ -651,6 +659,7 @@ The `option` block supports the following:
 
 * `cpu` - (Optional) CPU
 * `memory` - (Optional) Memory
+* `extended_resources` - (Optional) ExtendedResources
 
 ### `resource_field_ref`
 

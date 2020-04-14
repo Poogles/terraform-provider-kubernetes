@@ -232,7 +232,6 @@ func flattenResourceList(l api.ResourceList) map[string]string {
 }
 
 func flattenExtendedResourceList(l api.ResourceList) map[string]string {
-	// Extended resources should be flattened to another level
 	m := make(map[string]string)
 	m = flattenResourceList(l)
 	extendedResources := make(map[string]string)

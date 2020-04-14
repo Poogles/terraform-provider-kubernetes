@@ -848,6 +848,37 @@ func TestAccKubernetesDeployment_config_with_automount_service_account_token(t *
 	})
 }
 
+func TestAccKubernetesDeployment_with_extended_resource_requirements(t *testing.T) {
+	var conf api.Deployment
+
+	rcName := fmt.Sprintf("tf-acc-test-%s", acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
+
+	imageName := "nginx:1.7.9"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKubernetesDeploymentDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKubernetesDeploymentConfigWithResourceRequirements(rcName, imageName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckKubernetesDeploymentExists(deploymentTestResourceName, &conf),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.image", imageName),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.requests.0.memory", "50Mi"),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.requests.0.cpu", "250m"),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.requests.0.extended_resources.0.name", "nvidia.com/gpu"),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.requests.0.extended_resources.0.value", "1"),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.limits.0.memory", "512Mi"),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.limits.0.cpu", "500m"),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.limits.0.extended_resources.0.name", "nvidia.com/gpu"),
+					resource.TestCheckResourceAttr(deploymentTestResourceName, "spec.0.template.0.spec.0.container.0.resources.0.limits.0.extended_resources.0.value", "1"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckKubernetesDeploymentDestroy(s *terraform.State) error {
 	conn, err := testAccProvider.Meta().(KubeClientsets).MainClientset()
 	if err != nil {
@@ -1736,6 +1767,65 @@ resource "kubernetes_deployment" "test" {
             requests {
               cpu    = "250m"
               memory = "50Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`, rcName, imageName)
+}
+
+func testAccKubernetesDeploymentConfigWithExtendedResourceRequirements(rcName, imageName string) string {
+	return fmt.Sprintf(`
+resource "kubernetes_deployment" "test" {
+  metadata {
+    name = "%s"
+
+    labels = {
+      Test = "TfAcceptanceTest"
+    }
+  }
+
+  spec {
+    selector {
+      match_labels = {
+        Test = "TfAcceptanceTest"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          Test = "TfAcceptanceTest"
+        }
+      }
+
+      spec {
+        container {
+          image = "%s"
+          name  = "containername"
+
+          resources {
+            limits {
+              cpu            = "0.5"
+              memory         = "512Mi"
+
+              extended_resources {
+              	name = "nvidia.com/gpu"
+              	value = "1"
+              }
+            }
+
+            requests {
+              cpu            = "250m"
+              memory         = "50Mi"
+
+              extended_resources {
+              	name = "nvidia.com/gpu"
+              	value = "1"
+              }
             }
           }
         }

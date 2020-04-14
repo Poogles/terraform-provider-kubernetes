@@ -117,12 +117,23 @@ func resourcesField() map[string]*schema.Schema {
 						DiffSuppressFunc: suppressEquivalentResourceQuantity,
 					},
 					"extended_resources": {
-						Type:             schema.TypeMap,
-						Optional:         true,
-						Computed:         true,
-						Description:      "ExtendedResources is a map of fully-qualified resource names outside the kubernetes.io domain. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources.",
-						ValidateFunc:     validateResourceQuantity,
-						DiffSuppressFunc: suppressEquivalentResourceQuantity,
+						Type:        schema.TypeList,
+						Optional:    true,
+						Description: "ExtendedResources is a list of fully-qualified resource names outside the kubernetes.io domain. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources.",
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"name": {
+									Type:        schema.TypeString,
+									Optional:    true,
+									Description: "Fully qualified ExtendedResource name.",
+								},
+								"value": {
+									Type:        schema.TypeInt,
+									Optional:    true,
+									Description: "Quantity of ExtendedResource to request.",
+								},
+							},
+						},
 					},
 				},
 			},
@@ -149,12 +160,23 @@ func resourcesField() map[string]*schema.Schema {
 						DiffSuppressFunc: suppressEquivalentResourceQuantity,
 					},
 					"extended_resources": {
-						Type:             schema.TypeMap,
-						Optional:         true,
-						Computed:         true,
-						Description:      "ExtendedResources is a map of fully-qualified resource names outside the kubernetes.io domain. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources.",
-						ValidateFunc:     validateResourceQuantity,
-						DiffSuppressFunc: suppressEquivalentResourceQuantity,
+						Type:        schema.TypeList,
+						Optional:    true,
+						Description: "ExtendedResources is a list of fully-qualified resource names outside the kubernetes.io domain. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#extended-resources.",
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"name": {
+									Type:        schema.TypeString,
+									Optional:    true,
+									Description: "Fully qualified ExtendedResource name.",
+								},
+								"value": {
+									Type:        schema.TypeInt,
+									Optional:    true,
+									Description: "Quantity of ExtendedResource to request.",
+								},
+							},
+						},
 					},
 				},
 			},
